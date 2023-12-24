@@ -150,6 +150,7 @@ class Game:
         self.login_user = login_user
         self.turns = 0
         self.colors = ['1', '2', '3', '4', '5', '6', '7']
+
         self.current_stage = SELECT
         self.buttons = [[], [], [], [], [], [], [], [], []]  # кнопки
         self.score = 0
