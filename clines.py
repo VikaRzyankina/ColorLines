@@ -7,20 +7,22 @@ mixer.init()
 mixer.music.load('assets/MenuSound.mp3')
 mixer.music.play(loops=-1)
 mixer.music.set_volume(0.1)
+
+GAME_OVER = 'game_over'
+SELECT = 'choice'
+MOVE = 'move'
+
+img = Image.open('assets/menuu.jpeg')
+auth_bg = Image.open('assets/menu (2).jpeg')
 class Main():
     def __init__(self):
         self.root = Tk()
         self.root.title("Color Lines")
-
         self.Main_menu()
 
     def Main_menu(self):
-        img = Image.open('assets/menuu.jpeg')
-        width = 900
-        ratio = (width / float(img.size[0]))
-        height = int((float(img.size[1]) * float(ratio)))
-        imag = img.resize((width, height))
-        background = ImageTk.PhotoImage(imag)
+        imag = img.resize((900, 900))
+        background = ImageTk.PhotoImage(imag, master = self.root)
         bg = Label( self.root, image=background)
         bg.pack()
         self.root.eval('tk::PlaceWindow . center')
@@ -32,7 +34,7 @@ class Main():
 
         button_play = Button( self.root, text = 'Начать Игру', fg='#ffffff', font='Times 24', border="0", image = button_image_start, compound='center', command= lambda: Auth( self.root))
         button_settings = Button( self.root, text = 'Настройки', fg='#ffffff', font='Times 24', border="0", image = button_image_settings, compound='center')
-        button_score = Button( self.root, text = 'Рекорды: ', fg='#ffffff', font='Times 24',  border="0", image = button_image_score, compound='center')
+        button_score = Button( self.root, text = 'Рекорды ', fg='#ffffff', font='Times 24',  border="0", image = button_image_score, compound='center', command=self.table_records)
         button_exit = Button( self.root, text = ' Выход', font='Times 24', border="0", image = button_image_exit, compound='center', command =  self.root.destroy )
 
         button_play.place(x=650, y=250)
@@ -41,25 +43,52 @@ class Main():
         button_exit.place(x=650, y=550)
         self.root.mainloop()
 
-GAME_OVER = 'game_over'
-SELECT = 'choice'
-MOVE = 'move'
-
+    def table_records(self):
+        self.root.destroy()
+        records_window = Tk()
+        button_image_records = PhotoImage(master= records_window, file='assets/button333.png').subsample(1,2)
+        button_image_back = PhotoImage(master= records_window, file='assets/button222.png').subsample(1,2)
+        records_window.title("Color Lines")
+        records_window.geometry('400x900')
+        imagg = auth_bg.resize((1000, 1000))
+        background = ImageTk.PhotoImage(imagg, master = records_window)
+        bg = Label(records_window, image=background)
+        bg.place(x=0, y=0, relwidth=1, relheight=1)
+        count = 0
+        with open('ScoreFile.txt', 'r') as f:
+            lines = f.readlines()
+            for line in lines:
+                if line == '':
+                    break
+                if count == 10:
+                    break
+                else:
+                    readline_score = line[:-1].split(':', 2)
+                    Label(records_window, text = readline_score, font='Times 24', border="0", image = button_image_records, compound='center').pack(pady= 3)
+                    count += 1
+        Button(records_window, text = 'Назад',font='Times 24', border="0", image = button_image_back, compound='center', command= lambda:self.back_record(records_window)).place(x=80, y=800)
+        records_window.eval('tk::PlaceWindow . center')
+        records_window.mainloop()
+    def back_record(self,records_window):
+        records_window.destroy()
+        Main()
 
 class Auth:
     def __init__(self, menu):
         menu.destroy()
         open('File.txt', 'a').close()
         self.window = Tk()
-        self.window.title('Добрый день, пользователь!')
+        self.window.title("Color Lines")
         window = self.window
         window.geometry('300x250')
-        self.auth_bg = Image.open('assets/menu (2).jpeg')
-        self.imag = self.auth_bg.resize((300, 300))
+
+
+        self.imag = auth_bg.resize((300, 300))
         background = ImageTk.PhotoImage(self.imag)
         bg = Label(window, image=background)
         bg.place(x=0, y=0, relwidth=1, relheight=1)
         window.eval('tk::PlaceWindow . center')
+
         Button(window, font=14, compound='center', text="Регистрация", command=self.register).pack(pady=20)
         Button(window, font=14, text="Вход", command=self.log_in).pack(pady=20)
         but = Button(window, text="Назад", command=lambda: self.back_command(False))
@@ -75,7 +104,7 @@ class Auth:
             Auth(self.auth_window)
 
     def window_entry(self, description):
-        Label(self.auth_window, font=14, text=description).pack()
+        Label(self.auth_window, font=14, text=description).pack(pady=10)
         entry = Entry(self.auth_window, font=14, width=20, justify='center')
         entry.pack()
         return entry
@@ -85,21 +114,18 @@ class Auth:
         self.auth_window = Tk()
         self.auth_window.title(title)
         wind = self.auth_window
-        wind.geometry('300x200')
+        wind.geometry('300x300')
 
-        auth_bg = Image.open('assets/menu (2).jpeg')
-        self.imag = auth_bg.resize((300, 300))
-        background = ImageTk.PhotoImage(self.imag)
+        background = ImageTk.PhotoImage(self.imag, master = wind)
         bg = Label(self.auth_window, image=background)
         bg.place(x=0, y=0, relwidth=1, relheight=1)
 
         self.login_user = self.window_entry(log)
-        Label(self.auth_window, text='').pack()
         self.password_user = self.window_entry(passw)
-        Label(wind, text='').pack()
-        Button(wind, font=14, text="Продолжить", command=command).pack()
-        Button(wind, font =14, text ='Назад', command=lambda: self.back_command(True)).pack()
+        Button(wind, font=14, text="Продолжить", command=command).pack(pady=10)
+        Button(wind, font =14, text ='Назад', command=lambda: self.back_command(True)).pack(pady=10)
         wind.eval('tk::PlaceWindow . center')
+        wind.mainloop()
     def register(self):
         self.select_auth('Регистрация', 'Придумайте логин', 'Придумайте пароль', self.write_txt)
 
@@ -147,20 +173,23 @@ class Auth:
 class Game:
 
     def __init__(self,login_user):
+        open('ScoreFile.txt', 'a').close()
         self.login_user = login_user
         self.turns = 0
         self.colors = ['1', '2', '3', '4', '5', '6', '7']
-
+        self.ghost_colors = ['-1', '-2', '-3', '-4', '-5', '-6', '-7']
         self.current_stage = SELECT
         self.buttons = [[], [], [], [], [], [], [], [], []]  # кнопки
         self.score = 0
         self.future_balls = []
 
     def start_game(self):
-        roott = Tk()
-
-        roott.title("Color Lines")
-        roott.geometry("862x950")
+        self.game_window = Tk()
+        self.game_window.title("Color Lines")
+        self.game_window.geometry("863x955")
+        background = ImageTk.PhotoImage(img)
+        bg = Label(self.game_window, image=background)
+        bg.place(x=0, y=0, relwidth=1, relheight=1)
 
         self.mini_image = [
             PhotoImage(file="assets/red.png").subsample(2, 2), PhotoImage(file="assets/yellow.png").subsample(2, 2),
@@ -186,14 +215,22 @@ class Game:
                 btn.grid(row=r, column=c, sticky="nsew")
         self.computer_predict_space_ball()
         self.computer_predict_space_ball()
-        self.score_label = Label(roott, text=f'Счёт:{self.score}', font='Times 30')
-        self.score_label.place(x= 400,y= 870)
-        self.save_button = Button(roott, text ='Сохранить рекорд',font='Times 20', command=self.write_score)
+        self.score_label = Label(self.game_window, text=f'Счёт:{self.score}', font='Times 30')
+        self.score_label.place(x= 370,y= 870)
+        self.save_button = Button(self.game_window, text ='Сохранить рекорд',font='Times 20', command=self.write_score)
         self.save_button.place(x = 2, y = 870)
-        roott.eval('tk::PlaceWindow . center')
-        roott.mainloop()
+        self.new_game_button = Button(self.game_window, text='Начать новую игру', font='Times 20', command=self.new_game)
+        self.new_game_button.place(x=618, y=870)
+        self.game_window.eval('tk::PlaceWindow . center')
+        self.game_window.mainloop()
 
-    def adds_color_ball(self, x, y):
+    def new_game(self,end_window = None):
+        if end_window != None:
+            end_window.destroy()
+        self.game_window.destroy()
+        Game(self.login_user).start_game()
+
+    def add_color_ball(self, x, y):
         if self.buttons[x][y] == ' ': return
         self.buttons[x][y].config(width=90, height=90, image=self.image[int(self.buttons[x][y]['text']) - 1])
     def add_ghost_ball(self, x, y, color):
@@ -212,28 +249,34 @@ class Game:
                 continue
             self.buttons[x][y]['text'] = color
             self.near_color_check(x, y)
-            self.adds_color_ball(x, y)
+            self.add_color_ball(x, y)
         self.future_balls.clear()
 
     def computer_predict_space_ball(self):
         self.computer_spawn_ball()
         empty_cells = []
-        c = 0
         for x in range(9):
             for y in range(9):
                 if self.buttons[x][y]['text'] == ' ':
                     empty_cells.append([x, y])
-        if len(empty_cells) < 4:
-            warning_window('Вы проиграли')
+        if len(empty_cells) == 0:
+            end_window = Tk()
+            Button(end_window, text='Сохранить рекорд', font='Times 20',command=self.write_score).pack()
+            Label(end_window, text='').pack()
+            Button(end_window, text = 'Выход', font='Times 20', command= end_window.destroy).pack()
+            Label(end_window, text='').pack()
+            Button(end_window,compound='center', text='Начать новую игру', font='Times 20',command= lambda:self.new_game(end_window)).pack()
+            end_window.eval('tk::PlaceWindow . center')
             return
-        while c != 3:
+        max_places = min(len(empty_cells), 3)
+        while max_places != 0:
             select = random.randint(0, len(empty_cells) - 1)
             x, y = empty_cells.pop(select)
             if self.buttons[x][y]['text'] == ' ':
                 color = random.choice(self.colors)
                 self.future_balls.append([x, y, color])
                 self.add_ghost_ball(x, y, color)
-            c += 1
+            max_places -= 1
 
     def player_choice_ball(self, x, y):
         if self.buttons[x][y]['text'] != ' ':
@@ -248,16 +291,17 @@ class Game:
                 return
             saved_button = self.buttons[self.save_x][self.save_y]['text']
             self.buttons[self.save_x][self.save_y].config(bg='SystemButtonFace')
-            self.computer_predict_space_ball()
             self.buttons[x][y]['text'] = saved_button
+            self.computer_predict_space_ball()
             self.current_stage = SELECT
-            self.adds_color_ball(x, y)
+            self.add_color_ball(x, y)
             self.delete_ball(self.save_x, self.save_y)
             self.near_color_check(x, y)
         else:
             self.buttons[self.save_x][self.save_y].config(bg='SystemButtonFace')
             self.save_x = x
             self.save_y = y
+            self.buttons[x][y].config(bg='#98FB98')
 
     def validate_coord(self, x, y):
         return 0 <= x < 9 and 0 <= y < 9
