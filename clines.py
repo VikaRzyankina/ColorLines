@@ -257,9 +257,15 @@ class Game:
             self.player_place_ball(x, y)
 
     def computer_spawn_ball(self):
+        empty = []
         for x, y, color in self.future_balls:
             if self.buttons[x][y]['text'] != ' ':
-                continue
+                for x in range(8):
+                    for y in range(8):
+                        if self.buttons[x][y]['text'] == ' ':
+                            empty.append([x,y])
+                            x,y = random.choice(empty)
+                            color = random.choice(self.colors)
             self.buttons[x][y]['text'] = color
             self.near_color_check(x, y)
             self.add_color_ball(x, y)
@@ -301,6 +307,7 @@ class Game:
     def player_place_ball(self, x, y):
         if self.buttons[x][y]['text'] == ' ':
             if not self.pathfinding(x, y):
+                warning_window('Путь  перегражден другим шариком', 'Ошибка')
                 return
             self.buttons[self.save_x][self.save_y].config(bg='SystemButtonFace')
             self.buttons[x][y]['text'] = self.buttons[self.save_x][self.save_y]['text']
