@@ -1,6 +1,6 @@
 import tkinter.messagebox
 
-from pygame import  mixer
+from pygame import mixer
 from tkinter import *
 from tkinter import messagebox
 from PIL import ImageTk, Image
@@ -97,7 +97,6 @@ class Auth:
         window.eval('tk::PlaceWindow . center')
         self.window.mainloop()
 
-
     def back_command(self, key):
         if key == False:
             self.window.destroy()
@@ -110,7 +109,6 @@ class Auth:
         entry = Entry(self.auth_window, font='Times 20', width= 20, justify='center')
         entry.pack()
         return entry
-
 
     def select_auth(self, title, log, passw, command):
         self.window.destroy()
@@ -459,6 +457,5 @@ class Game:
                 f.write(str(scores[login]) + ':' + login + '\n')
             f.close()
         messagebox.showinfo('Сохранение','Рекорд сохранен.')
-
 
 Main()
