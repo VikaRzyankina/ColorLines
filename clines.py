@@ -1,5 +1,3 @@
-import tkinter.messagebox
-
 from pygame import mixer
 from tkinter import *
 from tkinter import messagebox
