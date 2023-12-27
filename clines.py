@@ -1,5 +1,8 @@
+import tkinter.messagebox
+
 from pygame import  mixer
 from tkinter import *
+from tkinter import messagebox
 from PIL import ImageTk, Image
 import hashlib
 import random
@@ -86,6 +89,7 @@ class Auth:
         background = ImageTk.PhotoImage(self.imag)
         bg = Label(window, image=background)
         bg.place(x=0, y=0, relwidth=1, relheight=1)
+        self.window.resizable(False, False)
         Button(window, font='Times 20', fg='#ffffff', compound='center', text="Регистрация", image =button_image_auth, command=self.register).pack(pady=20)
         Button(window, font='Times 20', fg='#ffffff', text="Вход", compound='center', image =button_image_auth, command=self.log_in).pack(pady=20)
         but = Button(window, text="Назад", font='Times 20', fg='#ffffff', compound='center', image =button_image_auth, command=lambda: self.back_command(False))
@@ -118,6 +122,7 @@ class Auth:
         background = ImageTk.PhotoImage(self.imag, master= wind)
         bg = Label(self.auth_window, image=background)
         bg.place(x=0, y=0, relwidth=1, relheight=1)
+        self.auth_window.resizable(False, False)
         img = PhotoImage(file='assets/button333.png').zoom(5,1).subsample(4,2)
         self.login_user = self.window_entry(log,img)
         self.password_user = self.window_entry(passw,img)
@@ -147,10 +152,10 @@ class Auth:
                     Game(str_user).start_game()
                     break
                 if str_user == '' or self.password_user.get() == '':
-                    warning_window('Вы оставили поле пустым.')
+                    messagebox.showerror('Ошибка','Вы оставили поле пустым.')
                     return
         if not_found:
-            warning_window('Не удалось авторизоваться. Не подходящие логин или пароль.')
+            messagebox.showerror('Ошибка','Не удалось авторизоваться. Не подходящие логин или пароль.')
 
     def write_txt(self):
         str_user = self.login_user.get()
@@ -158,10 +163,10 @@ class Auth:
             read = f.readlines()
             for i in range(1, len(read), 2):
                 if str_user == read[i].rstrip('\n'):
-                    warning_window('Выбранный вами логин уже используется.')
+                    messagebox.showerror('Ошибка','Выбранный вами логин уже используется.')
                     return
             if self.login_user.get() == '' or self.password_user.get() == '':
-                warning_window('Вы оставили поле пустым.')
+                messagebox.showerror('Ошибка','Вы оставили поле пустым.')
                 return
         with open('File.txt', 'a') as f:
             f.write(
@@ -208,7 +213,7 @@ class Game:
         ]
         self.empty =PhotoImage(file='assets/empty.png').subsample(2, 2)
         button_image_gamewindow = PhotoImage(file='assets/button333.png').zoom(5,1).subsample(4,2)
-        button_image_score= PhotoImage(file='assets/button333.png').zoom(5,1).subsample(6,2)
+        button_image_score= PhotoImage(file='assets/button333.png').zoom(1,1).subsample(1,2)
         for r in range(9):
             for c in range(9):
 
@@ -278,16 +283,21 @@ class Game:
             for y in range(9):
                 if self.buttons[x][y]['text'] == ' ':
                     empty_cells.append([x, y])
-        if len(empty_cells) == 0:
+        if len(empty_cells) == 1:
             end_window = Tk()
-            Button(end_window, text='Сохранить рекорд', font='Times 20',command=self.write_score).pack()
-            Label(end_window, text='').pack()
-            Button(end_window, text = 'Выход', font='Times 20', command= end_window.destroy).pack()
-            Label(end_window, text='').pack()
-            Button(end_window,compound='center', text='Начать новую игру', font='Times 20',command= lambda:self.new_game(end_window)).pack()
+            end_window.geometry('500x500')
+            button_img = PhotoImage(master= end_window, file='assets/button333.png').subsample(1,2)
+            background = ImageTk.PhotoImage(auth_bg, master=end_window)
+            bg = Label(end_window, image=background)
+            bg.place(x=0, y=0, relwidth=1, relheight=1)
+            end_window.resizable(False, False)
+            Button(end_window, text='Сохранить рекорд', compound='center', image=button_img, font='Times 20', command=self.write_score).pack(pady=15)
+            Button(end_window,compound='center', image=button_img ,text='Начать новую игру', font='Times 20',command= lambda:self.new_game(end_window)).pack(pady=15)
+            Button(end_window, text='Выход', font='Times 20', compound='center', image=button_img,command=end_window.destroy).pack(pady=15)
             end_window.eval('tk::PlaceWindow . center')
+            end_window.mainloop()
             return
-        max_places = min(len(empty_cells), 3)
+        max_places = min(len(empty_cells), 9)
         while max_places != 0:
             select = random.randint(0, len(empty_cells) - 1)
             x, y = empty_cells.pop(select)
@@ -307,7 +317,7 @@ class Game:
     def player_place_ball(self, x, y):
         if self.buttons[x][y]['text'] == ' ':
             if not self.pathfinding(x, y):
-                warning_window('Путь  перегражден другим шариком', 'Ошибка')
+                messagebox.showerror('Ошибка','Путь  перегражден другим шариком')
                 return
             self.buttons[self.save_x][self.save_y].config(bg='SystemButtonFace')
             self.buttons[x][y]['text'] = self.buttons[self.save_x][self.save_y]['text']
@@ -440,7 +450,7 @@ class Game:
                 readline_score = line.split(':', 2)
                 scores[readline_score[1][:-1]] = int(readline_score[0])
         if scores.get(self.login_user, 0) > self.score:
-            warning_window('Ваш текущий рекорд меньше, чем сохраненный ранее', 'Отказ сохранения')
+            messagebox.showerror('Отказ сохранения','Ваш текущий рекорд меньше, чем сохраненный ранее')
             return
         scores[self.login_user] = self.score
 
@@ -448,15 +458,7 @@ class Game:
             for login in sorted(scores, key=scores.get, reverse=True):
                 f.write(str(scores[login]) + ':' + login + '\n')
             f.close()
-        warning_window('Рекорд сохранен.', 'Сохранение')
+        messagebox.showinfo('Сохранение','Рекорд сохранен.')
 
 
-def warning_window(message, title=None):  # функция для вывода текста об ошибке
-    window = Tk()
-    if title != None:
-        window.title(title)
-    else:
-        window.title('Ошибка')
-    Label(window, font=14, text=message).pack()
-    window.eval('tk::PlaceWindow . center')
 Main()
