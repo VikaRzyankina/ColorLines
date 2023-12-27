@@ -83,7 +83,7 @@ class Auth:
         self.window = Tk()
         self.window.title("Color Lines")
         window = self.window
-        window.geometry('500x500')
+        window.geometry('500x400')
         button_image_auth = PhotoImage(file='assets/button222.png').subsample(1,2)
         self.imag = auth_bg.resize((500, 500))
         background = ImageTk.PhotoImage(self.imag)
@@ -146,6 +146,7 @@ class Auth:
             for i in range(1, len(read), 2):
                 if str_user == read[i].rstrip('\n') and password_sha == read[i + 1].rstrip('\n'):
                     not_found = False
+                    messagebox.showinfo('Успех', 'Успешная авторизация.')
                     self.auth_window.destroy()
                     Game(str_user).start_game()
                     break
@@ -171,6 +172,7 @@ class Auth:
                 '\n' + str_user + '\n' + hashlib.sha1(str.encode(self.password_user.get())).hexdigest())
             f.close()
             self.auth_window.destroy()
+            messagebox.showinfo('Успех', 'Успешная регистрация.')
             Game(str_user).start_game()
 
 
@@ -242,7 +244,8 @@ class Game:
     def new_game(self,end_window = None):
         if end_window != None:
             end_window.destroy()
-        self.game_window.destroy()
+        else:
+            self.game_window.destroy()
         Game(self.login_user).start_game()
 
     def add_color_ball(self, x, y):
@@ -283,19 +286,22 @@ class Game:
                     empty_cells.append([x, y])
         if len(empty_cells) == 1:
             end_window = Tk()
+            self.game_window.destroy()
+            end_window.title('Color Lines')
             end_window.geometry('500x500')
-            button_img = PhotoImage(master= end_window, file='assets/button333.png').subsample(1,2)
+            button_img = PhotoImage(master= end_window, file='assets/button333.png').zoom(3,1).subsample(2,2)
             background = ImageTk.PhotoImage(auth_bg, master=end_window)
             bg = Label(end_window, image=background)
             bg.place(x=0, y=0, relwidth=1, relheight=1)
             end_window.resizable(False, False)
-            Button(end_window, text='Сохранить рекорд', compound='center', image=button_img, font='Times 20', command=self.write_score).pack(pady=15)
+            Label(end_window, text=f'Счёт:{self.score}', font='Times 30',image=button_img, compound='center').pack(pady=15)
+            Button(end_window, text='Сохранить счёт', compound='center', image=button_img, font='Times 20', command=self.write_score).pack(pady=15)
             Button(end_window,compound='center', image=button_img ,text='Начать новую игру', font='Times 20',command= lambda:self.new_game(end_window)).pack(pady=15)
             Button(end_window, text='Выход', font='Times 20', compound='center', image=button_img,command=end_window.destroy).pack(pady=15)
             end_window.eval('tk::PlaceWindow . center')
             end_window.mainloop()
             return
-        max_places = min(len(empty_cells), 9)
+        max_places = min(len(empty_cells), 3)
         while max_places != 0:
             select = random.randint(0, len(empty_cells) - 1)
             x, y = empty_cells.pop(select)
