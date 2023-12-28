@@ -16,13 +16,13 @@ MOVE = 'move'
 img = Image.open('assets/menuu.jpeg')
 auth_bg = Image.open('assets/menu (2).jpeg')
 
-class Main():
+class Main():                                           #класс главного меню
     def __init__(self):
         self.root = Tk()
         self.root.title("Color Lines")
         self.Main_menu()
 
-    def Main_menu(self):
+    def Main_menu(self):                                 #Открытие и отрисовка главного меню
         imag = img.resize((900, 900))
         background = ImageTk.PhotoImage(imag, master = self.root)
         bg = Label( self.root, image=background)
@@ -44,7 +44,7 @@ class Main():
         button_exit.place(x=650, y=550)
         self.root.mainloop()
 
-    def table_records(self):
+    def table_records(self):                                #Открытие и отрисовка таблицы рекордов
         self.root.destroy()
         records_window = Tk()
         button_image_records = PhotoImage(master= records_window, file='assets/button333.png').subsample(1,2)
@@ -74,7 +74,7 @@ class Main():
         records_window.destroy()
         Main()
 
-class Auth:
+class Auth:                                     #класс авторизации
     def __init__(self, menu):
         menu.destroy()
         open('File.txt', 'a').close()
@@ -102,13 +102,13 @@ class Auth:
         else:
             Auth(self.auth_window)
 
-    def window_entry(self, description, img):
+    def window_entry(self, description, img):                               #подготовка полей ввода логина и пароля
         Label(self.auth_window, font='Times 20', border="0", text=description, image=img, compound='center').pack(pady=10)
         entry = Entry(self.auth_window, font='Times 20', width= 20, justify='center')
         entry.pack()
         return entry
 
-    def select_auth(self, title, log, passw, command):
+    def select_auth(self, title, log, passw, command):                     #выбор авторизации/регистрации
         self.window.destroy()
         self.auth_window = Tk()
         self.auth_window.title(title)
@@ -135,7 +135,7 @@ class Auth:
 
         self.select_auth('Вход', 'Введите логин', 'Введите пароль', self.open_txt)
         self.auth_window.mainloop()
-    def open_txt(self):
+    def open_txt(self):                           #открытие файла для проверки данных об авторизации
         str_user = self.login_user.get()
         not_found = True
         with open('File.txt', 'r') as f:
@@ -154,7 +154,7 @@ class Auth:
         if not_found:
             messagebox.showerror('Ошибка','Не удалось авторизоваться. Не подходящие логин или пароль.')
 
-    def write_txt(self):
+    def write_txt(self):                         #открытие файла для записи данных об регистрации
         str_user = self.login_user.get()
         with open('File.txt', 'r') as f:
             read = f.readlines()
@@ -174,21 +174,19 @@ class Auth:
             Game(str_user).start_game()
 
 
-class Game:
+class Game:                                                      #класс игры
 
     def __init__(self,login_user):
 
         open('ScoreFile.txt', 'a').close()
         self.login_user = login_user
-        self.turns = 0
-        self.colors = ['1', '2', '3', '4', '5', '6', '7']
-        self.ghost_colors = ['-1', '-2', '-3', '-4', '-5', '-6', '-7']
+        self.colors = ['1', '2', '3', '4', '5', '6', '7']        #номера цветов шариков
         self.current_stage = SELECT
-        self.buttons = [[], [], [], [], [], [], [], [], []]  # кнопки
+        self.buttons = [[], [], [], [], [], [], [], [], []]     # кнопки
         self.score = 0
         self.future_balls = []
 
-    def start_game(self):
+    def start_game(self):                                     #открытие и отрисовка окна и поля игры
         self.game_window = Tk()
         self.game_window.title("Color Lines")
         self.game_window.geometry("1200x865")
@@ -239,28 +237,28 @@ class Game:
         else:
             Auth(self.auth_window)
 
-    def new_game(self,end_window = None):
+    def new_game(self,end_window = None):           # начало новой игры
         if end_window != None:
             end_window.destroy()
         else:
             self.game_window.destroy()
         Game(self.login_user).start_game()
 
-    def add_color_ball(self, x, y):
+    def add_color_ball(self, x, y):                   #для покрасти физического шарика
         if self.buttons[x][y]['text'] == ' ':
             return
         self.buttons[x][y].config(width=90, height=90, image=self.image[int(self.buttons[x][y]['text']) - 1])
-    def add_ghost_ball(self, x, y, color):
+    def add_ghost_ball(self, x, y, color):            #для покрасти фантомного шарика
         if color == ' ': return
         self.buttons[x][y].config(width=90, height=90, image=self.mini_image[int(color) - 1])
 
-    def stage_choice(self, x, y):
+    def stage_choice(self, x, y):                       #определение стадии игры
         if self.current_stage == SELECT:
             self.player_choice_ball(x, y)
         elif self.current_stage == MOVE:
             self.player_place_ball(x, y)
 
-    def computer_spawn_ball(self):
+    def computer_spawn_ball(self):                     #компьютер ставит шарик
         empty = []
         for x, y, color in self.future_balls:
             if self.buttons[x][y]['text'] != ' ':
@@ -275,9 +273,9 @@ class Game:
             self.add_color_ball(x, y)
         self.future_balls.clear()
 
-    def computer_predict_space_ball(self):
+    def computer_predict_space_ball(self):            #компьютер выбирает место для шарика
         self.computer_spawn_ball()
-        empty_cells = []
+        empty_cells = []                                #пустые клетки
         for x in range(9):
             for y in range(9):
                 if self.buttons[x][y]['text'] == ' ':
@@ -309,14 +307,14 @@ class Game:
                 self.add_ghost_ball(x, y, color)
             max_places -= 1
 
-    def player_choice_ball(self, x, y):
+    def player_choice_ball(self, x, y):                        #игрок выбирает шарик
         if self.buttons[x][y]['text'] != ' ':
             self.save_x = x
             self.save_y = y
             self.buttons[x][y].config(bg='#98FB98')
             self.current_stage = MOVE
 
-    def player_place_ball(self, x, y):
+    def player_place_ball(self, x, y):                         #игрок ставит шарик
         if self.buttons[x][y]['text'] == ' ':
             if not self.pathfinding(x, y):
                 messagebox.showerror('Ошибка','Путь  перегражден другим шариком')
@@ -339,12 +337,12 @@ class Game:
     def validate_coord(self, x, y):
         return 0 <= x < 9 and 0 <= y < 9
 
-    def near_color_check(self, x, y):
+    def near_color_check(self, x, y):                            #проверка ближайших координат на одинаковый цвет
         color = self.buttons[x][y]['text']
         for nearby_coords in [[0, -1], [-1, -1], [-1, 0], [-1, 1]]:
             self.line_calculate(x, y, nearby_coords, color)
 
-    def line_calculate(self, x, y, nearby_coords, color):
+    def line_calculate(self, x, y, nearby_coords, color):       #проверка последующих координат на тот же подряд идущий цвет
         count = 1
         x_offsets = x
         y_offsets = y
@@ -404,10 +402,10 @@ class Game:
             self.score += 5
         self.score_label.config(text=f'Счёт:{self.score}')
 
-    def pathfinding(self, x, y):
+    def pathfinding(self, x, y):                            #поиск наличия пути от начальной координаты до конечной
         goal = [x, y]
-        reachable = [[self.save_x, self.save_y]] #Нужно про1ти
-        explored = [] #пройдено
+        reachable = [[self.save_x, self.save_y]]            #Нужно пройти
+        explored = []                                       #пройдено
         while len(reachable) != 0:
             node = self.choose_node(reachable, goal)
             if node == goal:
@@ -423,7 +421,7 @@ class Game:
                     reachable.append(adjacent)
         return False
 
-    def get_adjacent_nodes(self, node):
+    def get_adjacent_nodes(self, node):          #получение ближайших координат
         adjacent_nodes = []
         for x, y in [[1, 0], [-1, 0], [0, 1], [0, -1]]:
             x_offset = node[0] + x
@@ -432,7 +430,7 @@ class Game:
                 adjacent_nodes.append([x_offset, y_offset])
         return adjacent_nodes
 
-    def choose_node(self, reachable, goal):
+    def choose_node(self, reachable, goal):     # выбор лучшего пути для помощи поиска в pathfinding(чтобы не удаляться от нужной координаты, а приближаться)
         min_cost = 20
         best_node = None
         for node in reachable:
@@ -442,7 +440,7 @@ class Game:
                 best_node = node
         return best_node
 
-    def write_score(self):
+    def write_score(self):                        #сохранение счёта игрока
         scores ={}
         with open('ScoreFile.txt', 'r') as f:
             lines = f.readlines()
